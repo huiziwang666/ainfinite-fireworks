@@ -32,7 +32,7 @@ const hsl = (h: number, s: number, l: number, a: number = 1) => {
   return `hsla(${h % 360}, ${Math.min(100, Math.max(0, s))}%, ${Math.min(100, Math.max(0, l))}%, ${a})`;
 };
 
-const MAX_PARTICLES = 800;
+const MAX_PARTICLES = 2000;
 
 // --- Particle Class (from Gemini example, adapted) ---
 
@@ -383,21 +383,23 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
     grandFinaleRef.current.active = bothHandsOpen;
 
     // Grand Finale: SPECTACULAR fireworks show
-    if (bothHandsOpen && now - grandFinaleRef.current.lastSpawn > 25) {
-      const phase = Math.floor(now / 500) % 5; // Cycle through patterns
+    if (bothHandsOpen && now - grandFinaleRef.current.lastSpawn > 15) {
+      const phase = Math.floor(now / 400) % 6; // Faster cycle through more patterns
 
       // Pattern 1: Symmetrical bursts from sides
       if (phase === 0) {
         const y = Math.random() * height * 0.5 + height * 0.15;
-        triggerFirework(width * 0.15, y);
-        triggerFirework(width * 0.85, y);
-        triggerFirework(width * 0.5, y - 50);
+        triggerFirework(width * 0.1, y);
+        triggerFirework(width * 0.9, y);
+        triggerFirework(width * 0.3, y - 30);
+        triggerFirework(width * 0.7, y - 30);
+        triggerFirework(width * 0.5, y - 60);
       }
       // Pattern 2: Rising wave
       else if (phase === 1) {
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 6; i++) {
           const x = (Math.random() * 0.8 + 0.1) * width;
-          const y = Math.random() * height * 0.4 + height * 0.1;
+          const y = Math.random() * height * 0.5 + height * 0.1;
           triggerFirework(x, y);
         }
       }
@@ -408,18 +410,32 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
         triggerFirework(centerX, centerY);
         triggerFirework(centerX - 150, centerY + 80);
         triggerFirework(centerX + 150, centerY + 80);
+        triggerFirework(centerX - 100, centerY - 50);
+        triggerFirework(centerX + 100, centerY - 50);
       }
       // Pattern 4: Diagonal cross
       else if (phase === 3) {
-        triggerFirework(width * 0.2, height * 0.2);
-        triggerFirework(width * 0.8, height * 0.2);
-        triggerFirework(width * 0.5, height * 0.4);
-        triggerFirework(width * 0.2, height * 0.6);
-        triggerFirework(width * 0.8, height * 0.6);
+        triggerFirework(width * 0.15, height * 0.15);
+        triggerFirework(width * 0.85, height * 0.15);
+        triggerFirework(width * 0.5, height * 0.35);
+        triggerFirework(width * 0.15, height * 0.55);
+        triggerFirework(width * 0.85, height * 0.55);
+        triggerFirework(width * 0.3, height * 0.25);
+        triggerFirework(width * 0.7, height * 0.25);
       }
-      // Pattern 5: Random chaos
+      // Pattern 5: Circle burst
+      else if (phase === 4) {
+        const cx = width / 2;
+        const cy = height * 0.4;
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2;
+          const radius = 200;
+          triggerFirework(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius * 0.6);
+        }
+      }
+      // Pattern 6: Random chaos explosion
       else {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 8; i++) {
           const randX = Math.random() * width;
           const randY = Math.random() * height * 0.7 + height * 0.1;
           triggerFirework(randX, randY);

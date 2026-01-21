@@ -12,11 +12,18 @@ const App = () => {
     setError(null);
     try {
       await navigator.mediaDevices.getUserMedia({ video: true });
-      
+
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       if(ctx.state === 'suspended') {
         await ctx.resume();
+      }
+
+      // Request fullscreen
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (e) {
+        console.log('Fullscreen not supported or denied');
       }
 
       setStarted(true);
