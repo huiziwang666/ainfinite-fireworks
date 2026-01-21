@@ -1,0 +1,7 @@
+{
+  "name": "Year of the Horse 2026 Fireworks",
+  "description": "A gesture-controlled firework experience for Chinese New Year 2026 using Hand Tracking and Web Audio.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
