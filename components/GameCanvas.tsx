@@ -100,6 +100,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
   const audioRef = useRef<AudioEngine | null>(null);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
   const bgImageRef = useRef<HTMLImageElement | null>(null);
+  const logoRef = useRef<HTMLImageElement | null>(null);
 
   // Game State
   const particles = useRef<Particle[]>([]);
@@ -118,6 +119,11 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
     const bgImage = new Image();
     bgImage.src = '/night.jpg';
     bgImageRef.current = bgImage;
+
+    // Load logo image
+    const logo = new Image();
+    logo.src = '/new-logo.png';
+    logoRef.current = logo;
 
     // Start background music
     const bgMusic = new Audio('/background.mp3');
@@ -338,7 +344,21 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
       ctx.globalAlpha = 1;
     }
 
-    // 3. Text - Chinese New Year styling
+    // 3. Logo and branding - top left
+    if (logoRef.current && logoRef.current.complete) {
+      ctx.save();
+      const logoSize = 40;
+      ctx.drawImage(logoRef.current, 20, 20, logoSize, logoSize);
+      ctx.font = 'bold 28px "Cinzel", serif';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#FFD700';
+      ctx.shadowColor = '#FF2200';
+      ctx.shadowBlur = 10;
+      ctx.fillText('AInfinite', 70, 50);
+      ctx.restore();
+    }
+
+    // 4. Text - Chinese New Year styling - bottom right
     ctx.save();
     ctx.textAlign = 'right';
     ctx.fillStyle = '#FFD700';
@@ -362,25 +382,79 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
     const bothHandsOpen = leftState === HandState.OPEN && rightState === HandState.OPEN;
     grandFinaleRef.current.active = bothHandsOpen;
 
-    // Grand Finale: Rapid random fireworks across the screen
-    if (bothHandsOpen && now - grandFinaleRef.current.lastSpawn > 40) {
-      // Spawn fireworks at random positions
-      const randX = Math.random() * width;
-      const randY = Math.random() * height * 0.7 + height * 0.1;
-      triggerFirework(randX, randY);
+    // Grand Finale: SPECTACULAR fireworks show
+    if (bothHandsOpen && now - grandFinaleRef.current.lastSpawn > 25) {
+      const phase = Math.floor(now / 500) % 5; // Cycle through patterns
+
+      // Pattern 1: Symmetrical bursts from sides
+      if (phase === 0) {
+        const y = Math.random() * height * 0.5 + height * 0.15;
+        triggerFirework(width * 0.15, y);
+        triggerFirework(width * 0.85, y);
+        triggerFirework(width * 0.5, y - 50);
+      }
+      // Pattern 2: Rising wave
+      else if (phase === 1) {
+        for (let i = 0; i < 3; i++) {
+          const x = (Math.random() * 0.8 + 0.1) * width;
+          const y = Math.random() * height * 0.4 + height * 0.1;
+          triggerFirework(x, y);
+        }
+      }
+      // Pattern 3: Center explosion cascade
+      else if (phase === 2) {
+        const centerX = width / 2 + (Math.random() - 0.5) * 200;
+        const centerY = height * 0.3 + (Math.random() - 0.5) * 100;
+        triggerFirework(centerX, centerY);
+        triggerFirework(centerX - 150, centerY + 80);
+        triggerFirework(centerX + 150, centerY + 80);
+      }
+      // Pattern 4: Diagonal cross
+      else if (phase === 3) {
+        triggerFirework(width * 0.2, height * 0.2);
+        triggerFirework(width * 0.8, height * 0.2);
+        triggerFirework(width * 0.5, height * 0.4);
+        triggerFirework(width * 0.2, height * 0.6);
+        triggerFirework(width * 0.8, height * 0.6);
+      }
+      // Pattern 5: Random chaos
+      else {
+        for (let i = 0; i < 4; i++) {
+          const randX = Math.random() * width;
+          const randY = Math.random() * height * 0.7 + height * 0.1;
+          triggerFirework(randX, randY);
+        }
+      }
       grandFinaleRef.current.lastSpawn = now;
     }
 
-    // Draw "GRAND FINALE" text when active
+    // Draw spectacular "GRAND FINALE" text when active
     if (bothHandsOpen) {
       ctx.globalCompositeOperation = 'source-over';
+
+      // Pulsing background flash
+      const pulse = Math.sin(now / 100) * 0.5 + 0.5;
+      ctx.fillStyle = `rgba(255, ${50 + pulse * 50}, 0, ${0.03 + pulse * 0.02})`;
+      ctx.fillRect(0, 0, width, height);
+
       ctx.save();
-      ctx.font = 'bold 48px "Cinzel", serif';
+      // Pulsing text size
+      const textScale = 1 + Math.sin(now / 150) * 0.1;
+      const fontSize = Math.floor(64 * textScale);
+      ctx.font = `bold ${fontSize}px "Cinzel", serif`;
       ctx.textAlign = 'center';
-      ctx.fillStyle = `hsl(${(now / 20) % 360}, 100%, 60%)`;
-      ctx.shadowColor = '#FF0000';
+
+      // Rainbow cycling with glow
+      ctx.fillStyle = `hsl(${(now / 15) % 360}, 100%, 60%)`;
+      ctx.shadowColor = `hsl(${(now / 15 + 180) % 360}, 100%, 50%)`;
+      ctx.shadowBlur = 30 + Math.sin(now / 100) * 15;
+
+      ctx.fillText('GRAND FINALE!', width / 2, 90);
+
+      // Secondary glow layer
+      ctx.shadowColor = '#FFD700';
       ctx.shadowBlur = 20;
-      ctx.fillText('GRAND FINALE!', width / 2, 80);
+      ctx.fillText('GRAND FINALE!', width / 2, 90);
       ctx.restore();
       ctx.globalCompositeOperation = 'lighter';
     }

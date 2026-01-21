@@ -34,11 +34,14 @@ const App = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-950 via-red-950/50 to-black opacity-95"></div>
 
         <div className="relative z-10 text-center p-8 border-2 border-yellow-500/40 rounded-2xl bg-red-950/60 backdrop-blur-md max-w-lg shadow-[0_0_80px_rgba(255,50,0,0.3)]">
-          <h1 className="text-5xl font-bold mb-2 tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 drop-shadow-lg">
-            2026
-          </h1>
-          <h2 className="text-2xl mb-2 text-yellow-300/90 tracking-widest">YEAR OF THE HORSE</h2>
-          <h3 className="text-lg mb-8 text-orange-300/70 tracking-wider">Chinese New Year Celebration</h3>
+          <div className="flex flex-col items-center mb-6">
+            <img src="/new-logo.png" alt="AInfinite Logo" className="w-20 h-20 object-contain mb-3" />
+            <h1 className="text-4xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 drop-shadow-lg">
+              AInfinite Fireworks
+            </h1>
+          </div>
+          <h2 className="text-2xl mb-2 text-yellow-300/90 tracking-widest">YEAR OF THE HORSE 2026</h2>
+          <h3 className="text-lg mb-8 text-orange-300/70 tracking-wider">Lunar New Year Celebration</h3>
 
           <div className="space-y-6 mb-8 text-lg text-orange-100">
             <div className="flex items-center justify-center space-x-4">
