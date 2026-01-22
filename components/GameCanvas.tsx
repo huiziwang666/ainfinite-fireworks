@@ -344,17 +344,22 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
       ctx.globalAlpha = 1;
     }
 
+    // Responsive scaling factor based on screen size
+    const scale = Math.min(width / 1920, height / 1080);
+    const minScale = Math.max(0.5, scale);
+
     // 3. Logo and branding - top left
     if (logoRef.current && logoRef.current.complete) {
       ctx.save();
-      const logoSize = 40;
-      ctx.drawImage(logoRef.current, 20, 20, logoSize, logoSize);
-      ctx.font = 'bold 28px "Cinzel", serif';
+      const logoSize = Math.max(50, 80 * minScale);
+      const logoMargin = Math.max(20, 30 * minScale);
+      ctx.drawImage(logoRef.current, logoMargin, logoMargin, logoSize, logoSize);
+      ctx.font = `bold ${Math.max(28, Math.floor(48 * minScale))}px "Cinzel", serif`;
       ctx.textAlign = 'left';
       ctx.fillStyle = '#FFD700';
       ctx.shadowColor = '#FF2200';
-      ctx.shadowBlur = 10;
-      ctx.fillText('AInfinite', 70, 50);
+      ctx.shadowBlur = 12 * minScale;
+      ctx.fillText('AInfinite', logoMargin + logoSize + 15, logoMargin + logoSize * 0.7);
       ctx.restore();
     }
 
@@ -363,11 +368,19 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
     ctx.textAlign = 'right';
     ctx.fillStyle = '#FFD700';
     ctx.shadowColor = '#FF2200';
-    ctx.shadowBlur = 12;
-    ctx.font = 'bold 32px "Cinzel", serif';
-    ctx.fillText(HORSE_TEXT_LINE1, width - 25, height - 55);
-    ctx.font = 'bold 24px "Cinzel", serif';
-    ctx.fillText(HORSE_TEXT_LINE2, width - 25, height - 25);
+    ctx.shadowBlur = 12 * minScale;
+    const margin = Math.max(10, 20 * minScale);
+
+    // Responsive font sizes - smaller on mobile for line 2 only
+    const isMobile = width < 768;
+    const line1FontSize = Math.max(20, Math.floor(36 * minScale));
+    const line2FontSize = isMobile ? Math.max(12, Math.floor(14 * minScale)) : Math.max(14, Math.floor(26 * minScale));
+    const lineSpacing = isMobile ? Math.max(18, 22 * minScale) : Math.max(25, 35 * minScale);
+
+    ctx.font = `bold ${line1FontSize}px "Cinzel", serif`;
+    ctx.fillText(HORSE_TEXT_LINE1, width - margin, height - margin - lineSpacing);
+    ctx.font = `bold ${line2FontSize}px "Cinzel", serif`;
+    ctx.fillText(HORSE_TEXT_LINE2, width - margin, height - margin);
     ctx.restore();
 
     // 4. Switch to lighter blend for particles
@@ -454,23 +467,25 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ onHandsDetected }) => {
       ctx.fillRect(0, 0, width, height);
 
       ctx.save();
-      // Pulsing text size
+      // Pulsing text size - responsive
       const textScale = 1 + Math.sin(now / 150) * 0.1;
-      const fontSize = Math.floor(64 * textScale);
+      const baseFontSize = Math.max(36, Math.floor(72 * minScale));
+      const fontSize = Math.floor(baseFontSize * textScale);
       ctx.font = `bold ${fontSize}px "Cinzel", serif`;
       ctx.textAlign = 'center';
 
       // Rainbow cycling with glow
       ctx.fillStyle = `hsl(${(now / 15) % 360}, 100%, 60%)`;
       ctx.shadowColor = `hsl(${(now / 15 + 180) % 360}, 100%, 50%)`;
-      ctx.shadowBlur = 30 + Math.sin(now / 100) * 15;
+      ctx.shadowBlur = (30 + Math.sin(now / 100) * 15) * minScale;
 
-      ctx.fillText('GRAND FINALE!', width / 2, 90);
+      const textY = height * 0.35;
+      ctx.fillText('GRAND FINALE!', width / 2, textY);
 
       // Secondary glow layer
       ctx.shadowColor = '#FFD700';
-      ctx.shadowBlur = 20;
-      ctx.fillText('GRAND FINALE!', width / 2, 90);
+      ctx.shadowBlur = 20 * minScale;
+      ctx.fillText('GRAND FINALE!', width / 2, textY);
       ctx.restore();
       ctx.globalCompositeOperation = 'lighter';
     }

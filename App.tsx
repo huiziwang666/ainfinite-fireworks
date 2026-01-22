@@ -1,23 +1,65 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import GameCanvas from './components/GameCanvas';
+
+// Preload images helper
+const preloadImage = (src: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = src;
+  });
+};
 
 const App = () => {
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [cameraActive, setCameraActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [assetsPreloaded, setAssetsPreloaded] = useState(false);
+
+  // Preload assets on mount
+  useEffect(() => {
+    const preloadAssets = async () => {
+      try {
+        await Promise.all([
+          preloadImage('/new-logo.png'),
+          preloadImage('/night.jpg'),
+        ]);
+        setAssetsPreloaded(true);
+      } catch (e) {
+        console.log('Asset preload error:', e);
+        setAssetsPreloaded(true); // Continue anyway
+      }
+    };
+    preloadAssets();
+  }, []);
 
   const handleStart = async () => {
     setLoading(true);
     setError(null);
     try {
+      setLoadingStatus('Requesting camera...');
       await navigator.mediaDevices.getUserMedia({ video: true });
 
+      setLoadingStatus('Initializing audio...');
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
       if(ctx.state === 'suspended') {
         await ctx.resume();
       }
+
+      // Ensure assets are loaded
+      if (!assetsPreloaded) {
+        setLoadingStatus('Loading assets...');
+        await Promise.all([
+          preloadImage('/new-logo.png'),
+          preloadImage('/night.jpg'),
+        ]);
+      }
+
+      setLoadingStatus('Starting...');
 
       // Request fullscreen
       try {
@@ -69,7 +111,7 @@ const App = () => {
             disabled={loading}
             className="px-10 py-4 bg-gradient-to-r from-red-600 to-orange-500 text-yellow-100 font-bold text-xl rounded-full hover:from-red-500 hover:to-orange-400 transform hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,100,0,0.5)] border border-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Loading..." : "START CELEBRATION"}
+            {loading ? loadingStatus || "Loading..." : "START CELEBRATION"}
           </button>
 
           <p className="mt-6 text-xs text-orange-400/40 font-mono">CAMERA FEED PROCESSED LOCALLY</p>

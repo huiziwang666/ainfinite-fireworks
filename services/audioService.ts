@@ -7,7 +7,7 @@ export class AudioEngine {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       this.ctx = new AudioContextClass();
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.value = 0.3; // Prevent clipping
+      this.masterGain.gain.value = 0.8; // Louder fireworks
       this.masterGain.connect(this.ctx.destination);
     } catch (e) {
       console.error("Web Audio API not supported", e);
@@ -81,9 +81,9 @@ export class AudioEngine {
     filter.connect(gain);
     gain.connect(this.masterGain);
 
-    // Envelope
+    // Envelope - louder explosion
     const duration = 0.5 + size * 0.5;
-    gain.gain.setValueAtTime(0.8, t);
+    gain.gain.setValueAtTime(1.8, t);
     gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
 
     noise.start(t);
